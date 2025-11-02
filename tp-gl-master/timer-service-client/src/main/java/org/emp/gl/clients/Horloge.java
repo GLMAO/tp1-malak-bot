@@ -1,26 +1,39 @@
-package org.emp.gl.clients ; 
+package org.emp.gl.clients;
 
-import org.emp.gl.timer.service.TimerService ; 
+import java.beans.PropertyChangeEvent;
+import org.emp.gl.timer.service.TimerService;
+import org.emp.gl.timer.service.TimerChangeListener;
 
+public class Horloge implements TimerChangeListener {
 
-public class Horloge {
+    private final String name;
+    private final TimerService timerService;
 
-    String name; 
-    TimerService timerService ; 
+    public Horloge(String name, TimerService timerService) {
+        this.name = name;
+        this.timerService = timerService;
 
+        // S’inscrire comme observateur (via PropertyChangeSupport)
+        timerService.addTimeChangeListener(this);
 
-    public Horloge (String name) {
-        this.name = name ; 
-
-        System.out.println ("Horloge "+name+" initialized!") ;
+        System.out.println("Horloge " + name + " initialisée !");
     }
 
-    public void afficherHeure () {
-        if (timerService != null)
-            System.out.println (name + " affiche " + 
-                                timerService.getHeures() +":"+
-                                timerService.getMinutes()+":"+
-                                timerService.getSecondes()) ;
+    /**
+     * Méthode appelée automatiquement à chaque changement de propriété
+     * (par PropertyChangeSupport). On réagit seulement aux secondes.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TimerChangeListener.SECONDE_PROP.equals(evt.getPropertyName())) {
+            afficherHeure();
+        }
     }
 
+    public void afficherHeure() {
+        System.out.println(name + " affiche " +
+                timerService.getHeures() + ":" +
+                timerService.getMinutes() + ":" +
+                timerService.getSecondes());
+    }
 }
